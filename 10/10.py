@@ -35,25 +35,6 @@ type2connection = {
     "S": {"N": ["|", "7", "F"],    "E": ["-", "7", "J"],    "S": ["|", "L", "J"],    "W": ["-", "L", "F"]}
 }
 
-connections = {  # N,E,S,W
-    "S": [1, 1, 1, 1],
-    # | is a vertical pipe connecting north and south.
-    "|": [1, 0, 1, 0],
-    # - is a horizontal pipe connecting east and west.
-    "-": [0, 1, 0, 1],
-    # L is a 90-degree bend connecting north and east.
-    "L": [1, 1, 0, 0],
-    # J is a 90-degree bend connecting north and west.
-    "J": [1, 0, 0, 1],
-    # 7 is a 90-degree bend connecting south and west.
-    "7": [0, 0, 1, 1],
-    # F is a 90-degree bend connecting south and east.
-    "F": [0, 1, 1, 0],
-    # . is ground; there is no pipe in this tile.
-    ".": [0, 0, 0, 0],
-}
-del connections
-
 
 def is_connected(a, b, dir):
     r1, c1 = a
@@ -92,9 +73,6 @@ for r, c in path:
 
 maze2[start[0]][start[1]] = "L"
 
-for row in maze2:
-    print("".join(row))
-
 inside = set()
 for r, row in enumerate(maze2):
     for c, cell in enumerate(row):
@@ -107,5 +85,4 @@ for r, row in enumerate(maze2):
                 dc += 1
             if count % 2 == 1:
                 inside.add((r, c))
-print(inside)
 print(len(inside))
