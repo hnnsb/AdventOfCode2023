@@ -1,80 +1,77 @@
 from collections import Counter
 import copy
-from functools import cache
-from typing import Literal
 
 
-with open("./14/test.txt", "r") as file:
+with open("./14/input.txt", "r") as file:
     data = file.read()
 data = data.split("\n")
 data = [[c for c in x]for x in data]
 
-def roll_NS(field, dir:Literal["N","S"]):
-    if dir =="S":
-        field = field[::-1]
-    for r in range(len(field)):
-        for c in range(len(field[0])):
-            if field[r][c] != 'O':
-                continue
-            
-            dr = 1
-            moved = False
-            while r - dr >= 0 and field[r - dr][c] == '.':
-                dr += 1
-                moved = True
-            if moved:
-                field[r][c] = '.'
-                field[r-dr+1][c] = 'O'
-    return field[::-1] if dir == "S" else field
 
-def roll_EW(field, dir:Literal["E", "W"]):
-    if dir =="E":
-        field = [row[::-1] for row in field]
-    for r in range(len(field)):
-        for c in range(len(field[0])):
-            if field[r][c] != 'O':
-                continue
-            
-            dc = 1
-            moved = False
-            while c - dc >= 0 and field[r][c-dc] == '.':
-                dc += 1
-                moved = True
-            if moved:
-                field[r][c] = '.'
-                field[r][c-dc+1] = 'O'
-    return [row[::-1] for row in field] if dir == "E" else field
+def print_field(field):
+    for row in field:
+        print("".join(row))
 
- 
+
+def roll(field, dir: tuple):
+    """
+        dir: (-1, 0): north,
+             ( 0,-1): west
+    """
+    R = len(field)
+    C = len(field[0])
+    dir_r, dir_c = dir
+    r_range = range(R) if dir_r <= 0 else range(R-1, -1, -1)
+    c_range = range(C) if dir_c <= 0 else range(C-1, -1, -1)
+    for r in r_range:
+        for c in c_range:
+            if field[r][c] == 'O':
+                field[r][c] = '.'
+                dr = 0
+                dc = 0
+                while 0 <= c+dc < C and 0 <= r+dr < R and field[r+dr][c+dc] == ".":
+                    dr += dir_r
+                    dc += dir_c
+
+                field[r+dr-dir_r][c+dc-dir_c] = 'O'
+
+    return field
+
+
 def calc_load(field):
-    res = 0   
+    res = 0
     for i, row in enumerate(field):
         rocks = Counter(row)['O']
         res += (len(field)-i)*rocks
     return res
 
 
-rolled = roll_NS(copy.deepcopy(data), "N")
-print(calc_load(rolled))
+def part1():
+    rolled = roll(copy.deepcopy(data), (-1, 0))
+    print(calc_load(rolled))
 
-positions_in_cycle = []
-field = copy.deepcopy(data)
-prev = copy.deepcopy(field)
-for i in range(100):
-        if i%1000 ==0:
-            print(i, i/1_000_000_000)
-        field = roll_NS(field, "N")
-        field = roll_EW(field, "W")
-        field = roll_NS(field, "S")
-        field = roll_EW(field, "E")
 
-        # print(i, calc_load(field))
-        # continue
+def part2():
+    seen = {}
+    field = copy.deepcopy(data)
+    i = 0
+    T = 1e9
+    while i < T:
+        for dir in [(-1, 0), (0, -1), (1, 0), (0, 1)]:
+            field = roll(field, dir)
 
-        positions = {(r,c) for r,row in enumerate(field) for c,col in enumerate(row) if col == "O"}
-        if positions in positions_in_cycle:
-            print(i)
-            print(i+1_000_000_000%i)
-            break
+        field_t = tuple(tuple(row) for row in field)
+        if field_t in seen:
+            dur = i - seen[field_t]
+            amount = (T-i)//dur
+            i += amount * dur
         else:
-            positions_in_cycle.append(positions)
+            seen[field_t] = i
+        i += 1
+
+    print(calc_load(field))
+
+
+if __name__ == "__main__":
+    part1()
+    part2()
