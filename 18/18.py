@@ -27,7 +27,6 @@ def fill(pos):
             fill((rr,cc))
 
 fill((1,1))
-print(len(trench))
 print("Part 1:", len(trench))
 
 
@@ -45,7 +44,6 @@ for _, _, color in data:
     edges+= length
     path.append((r,c))
         
-print(path)
 path.append(path[0])
 res = 0
 for i,a in enumerate(path[:-1]):
@@ -53,5 +51,4 @@ for i,a in enumerate(path[:-1]):
     x_2,y_2 = path[i+1]
     res += x_1*y_2-y_1*x_2
     
-print("Part 2:", abs(res)/2)
-print("Part 2:", (abs(res)+edges)/2+1) #+1 for the start
+print(int((abs(res)+edges)/2+1)) #+1 for the start
